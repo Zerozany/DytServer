@@ -1,0 +1,38 @@
+{
+  "name": "dyt-server",
+  "version-string": "1.0.0",
+  "builtin-baseline": "20a72ce99b12dd0ebfea5d39f32681bd68b19d03",
+  "dependencies": [
+    {
+      "name": "ffmpeg",
+      "features": [
+        "opencl",
+        "lzma",
+        "openssl",
+        "opus",
+        "webp",
+        {
+          "name": "ilbc",
+          "platform": "linux|windows"
+        },
+        {
+          "name": "opengl",
+          "platform": "linux|windows"
+        },
+        {
+          "name": "dav1d",
+          "platform": "linux|windows"
+        },
+        {
+          "name": "nvcodec",
+          "platform": "linux|windows"
+        },
+        {
+          "name": "qsv",
+          "platform": "linux|windows"
+        }
+      ],
+      "version>=": "7.1"
+    }
+  ]
+}

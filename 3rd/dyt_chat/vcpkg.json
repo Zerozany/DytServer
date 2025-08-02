@@ -1,0 +1,11 @@
+{
+  "name": "qdchat",
+  "version-string": "1.0.0",
+  "builtin-baseline": "0f88ecb8528605f91980b90a2c5bad88e3cb565f",
+  "dependencies": [
+    {
+      "name": "gtest",
+      "version>=": "1.15.2"
+    }
+  ]
+}

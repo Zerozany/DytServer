@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Video Stream</title>
+    <style>
+        /* 统一按钮样式 */
+        button {
+            background-color: #007BFF;
+            /* 蓝色背景 */
+            color: white;
+            /* 文字颜色 */
+            border: none;
+            /* 去掉边框 */
+            padding: 10px 20px;
+            /* 按钮内边距 */
+            margin: 5px;
+            /* 按钮间距 */
+            font-size: 16px;
+            /* 文字大小 */
+            border-radius: 8px;
+            /* 圆角 */
+            cursor: pointer;
+            /* 鼠标指针 */
+            transition: 0.3s;
+            /* 过渡效果 */
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            /* 添加阴影 */
+        }
+
+        /* 鼠标悬停效果 */
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 分组标题 */
+        .section-title {
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+            margin: 10px 0;
+            display: block;
+            text-align: center;
+        }
+
+        /* 按钮容器 */
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Live Video Stream</h1>
+    <img id="video" src="" alt="Video Stream" />
+    <br>
+    <button onclick="addDevice()">添加设备</button>
+    <button onclick="removeDevice()">移除设备</button><br><br>
+    <button onclick="startEngine()">解析视频</button>
+    <button onclick="fetchImage()">获取视频帧</button>
+    <button onclick="playVideo()">播放视频</button>
+    <button onclick="stopPlay()">停止播放</button>
+    <button onclick="openImage()">打开图片</button>
+    <button onclick="closeImage()">关闭图片</button><br><br>
+    <span style="font-weight: bold;">PLD80</span><br><br>
+    <button onclick="PLD80_OSD_on()">打开OSD</button>
+    <button onclick="PLD80_OSD_off()">关闭OSD</button>
+    <button onclick="PLD80_pip_visible()">画中画可见光</button>
+    <button onclick="PLD80_pip_infrared()">画中画红外</button><br><br>
+    <input type="number" id="zoomValue" min="0" max="100" placeholder="输入缩放比例 (0-100)">
+    <button onclick="PLD80_zoom()">变焦指令</button><br><br>
+    <button onclick="PLD80_camera_switch_1()">可见光1</button>
+    <button onclick="PLD80_camera_switch_2()">可见光2</button>
+    <button onclick="PLD80_camera_switch_hot()">可见光热光</button>
+    <button onclick="PLD80_camera_switch_cold()">可见光冷光</button><br><br>
+    <button onclick="PLD80_target_type_adaptive ()">自适应类型</button>
+    <button onclick="PLD80_target_type_person ()">行人</button>
+    <button onclick="PLD80_target_type_vehicle()">车辆</button>
+    <button onclick="PLD80_target_type_building()">建筑</button>
+    <button onclick="PLD80_target_lock()">目标锁定关</button>
+    <button onclick="PLD80_center()">归中</button><br><br>
+    <button onclick="PLD80_target_check_on()">目标检测开</button>
+    <button onclick="PLD80_target_check_off()">目标检测关</button>
+    <button onclick="PLD80_bullet_storage_on()">弹上存储开</button>
+    <button onclick="PLD80_bullet_storage_off()">弹上存储关</button>
+    <button onclick="PLD80_night_attack_on()">夜间攻击开</button>
+    <button onclick="PLD80_night_attack_off()">夜间攻击关</button>
+    <button onclick="PLD80_motor_control_on()">电机开</button>
+    <button onclick="PLD80_motor_control_off()">电机关</button>
+    <button onclick="PLD80_fllow_on()">跟随开</button>
+    <button onclick="PLD80_fllow_off()">跟随关</button>
+    <button onclick="PLD80_door_lock_on()">电锁开</button>
+    <button onclick="PLD80_door_lock_off()">电锁关</button><br><br>
+    <button onclick="PLD80_sweep_mode_on()">周扫模式开</button>
+    <button onclick="PLD80_sweep_mode_off()">周扫模式关</button><br><br>
+    <input type="number" id="gyroInput" placeholder="请输入有效值"">
+    <button onclick=" PLD80_gyro_suppression()">陀螺仪抑制漂移</button><br><br>
+    <input type="number" id="pitch_frame_angle_input" placeholder="请输入pitch_frame_angle"">
+    <input type=" number" id="azimuth_frame_angle_input" placeholder="请输入azimuth_frame_angle"">
+    <button onclick=" PLD80_frame_angle()">指定框架角度</button><br><br>
+    <span style="font-weight: bold;">TBS</span><br><br>
+    <button onclick="TBS_OSD_on()">OSD开</button>
+    <button onclick="TBS_OSD_off()">OSD关</button>
+    <button onclick="TBS_laser_distance_on()">激光测距开</button>
+    <button onclick="TBS_laser_distance_off()">激光测距关</button>
+    <button onclick="TBS_pip_light_visible()">画中画可见光</button>
+    <button onclick="TBS_pip_light_infrared()">画中画红外</button><br><br>
+    <input type="number" id="TBSzoomValue" placeholder="输入有效值">
+    <button onclick="TBS_zoom()">变焦指令</button><br><br>
+    <button onclick="TBS_target_lock()">目标锁定关</button><br><br>
+    <span style="font-weight: bold;">通道</span><br><br>
+    <input type="number" id="longitude_input" placeholder="请输入longitude"">
+    <input type=" number" id="latitude_input" placeholder="请输入latitude"">
+    <input type=" number" id="height_input" placeholder="请输入height"">
+    <button onclick=" PIP_geographic_tracking()">地理跟踪</button><br><br>
+    <input type="number" id="x_speed_input" placeholder="请输入x"">
+    <input type=" number" id="y_speed_input" placeholder="请输入y"">
+    <button onclick=" control()">控制</button>
+
+
+
+    <script>
+        function addDevice() {
+            const url = "http://127.0.0.1:3300/device/add";
+            const params = new URLSearchParams({
+                url: "udp://192.168.1.22:24001/stream0",  // 视频流地址
+                address: "192.168.1.164",  // 设备 IP 地址
+                port: 4000 // 端口号
+            });
+
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Device append success!") {
+                        alert("设备添加成功! UID: " + data.uid);
+                    } else {
+                        alert("设备添加失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+
+        function removeDevice() {
+            const url = "http://127.0.0.1:3300/device/remove";
+            const params = new URLSearchParams({
+                uid: 1
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "Post",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Port 响应:", data);
+                    if (data.status === "Device remove success!") {
+                        alert("设备删除成功！");
+                    } else {
+                        alert("设备删除失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+
+        function startEngine() {
+            const url = "http://127.0.0.1:3300/video/play";
+            const params = new URLSearchParams({
+                uid: 1
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Video play accepeted!") {
+                        alert("视频解析中!");
+                    } else {
+                        alert("视频解析失败!");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        const cache = [];  // 用于存储图像的缓存
+        const maxCacheSize = 100;  // 最大缓存大小
+        const frameRate = 1000 / 30; // 30 FPS
+        let isReadyToPlay = false;  // 标记缓存是否有足够的帧准备好播放
+        let isStarted = false;  // 确保解析请求只发送一次
+
+        // 获取视频帧 (GET 请求)
+        function fetchImage() {
+            const url = "http://127.0.0.1:3300/video/read";
+            const params = new URLSearchParams({
+                uid: 1,
+                nocache: new Date().getTime()
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.blob())  // 获取图像的二进制数据
+                .then(imageBlob => {
+                    const imageUrl = URL.createObjectURL(imageBlob);  // 创建图片的 URL
+                    cache.push(imageUrl);  // 将图片 URL 添加到缓存
+                    if (cache.length > maxCacheSize) {
+                        cache.shift(); // 始终保持缓存大小
+                    }
+                    if (cache.length >= 30) {
+                        isReadyToPlay = true;
+                    }
+                    fetchImage();  // 继续请求下一帧
+                    alert("图片缓存已开启");
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function playVideo() {
+            if (isReadyToPlay && cache.length > 0) {
+                document.getElementById("video").src = cache.shift(); // 播放并移除已播放的图片
+            }
+            setTimeout(playVideo, frameRate); // 每隔设定的帧率播放一次
+        }
+
+        function stopPlay() {
+            const url = "http://127.0.0.1:3300/video/stop";
+            const params = new URLSearchParams({
+                uid: 1
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Video stop accepeted!") {
+                        alert("视停止播放成功！");
+                    } else {
+                        alert("视频停止播放失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function openImage() {
+            const url = "http://127.0.0.1:3300/image/open";
+            const params = new URLSearchParams({
+                uid: 1
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Save image accepeted!") {
+                        alert("保存图片打开成功！");
+                    } else {
+                        alert("保存图片打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function closeImage() {
+            const url = "http://127.0.0.1:3300/image/close";
+            const params = new URLSearchParams({
+                uid: 1
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Close image accepeted!") {
+                        alert("关闭保存图片成功！");
+                    } else {
+                        alert("关闭保存图片失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_OSD_on() {
+            const url = "http://127.0.0.1:3300/PLD80-order/OSD";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "on"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("打开OSD成功！");
+                    } else {
+                        alert("打开OSD失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_OSD_off() {
+            const url = "http://127.0.0.1:3300/PLD80-order/OSD";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "off"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("关闭OSD成功！");
+                    } else {
+                        alert("关闭OSD失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_pip_visible() {
+            const url = "http://127.0.0.1:3300/PLD80-order/pip-light";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "visible"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("可见光打开成功！");
+                    } else {
+                        alert("可见光打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_pip_infrared() {
+            const url = "http://127.0.0.1:3300/PLD80-order/pip-light";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "infrared"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("红外光打开成功！");
+                    } else {
+                        alert("红外光打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_zoom() {
+            // 获取输入框的值
+            const zoomInput = document.getElementById('zoomValue');
+            const zoomValue = zoomInput.value.trim();
+            // 验证输入
+            if (!zoomValue) {
+                alert("请输入缩放比例值！");
+                return;
+            }
+            const numericValue = parseInt(zoomValue);
+            const url = "http://127.0.0.1:3300/TBS-order/zoom";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: numericValue.toString() // 使用输入的值
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert(`缩放指令发送成功！值: ${numericValue}`);
+                    } else {
+                        alert("指令发送失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_camera_switch_1() {
+            const url = "http://127.0.0.1:3300/PLD80-order/camera-switch";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "visible-light-1"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("可见光1打开成功！");
+                    } else {
+                        alert("可见光1打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_camera_switch_2() {
+            const url = "http://127.0.0.1:3300/PLD80-order/camera-switch";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "visible-light-2"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("可见光2打开成功！");
+                    } else {
+                        alert("可见光2打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_camera_switch_hot() {
+            const url = "http://127.0.0.1:3300/PLD80-order/camera-switch";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "red-infrared-hot"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("红外热光打开成功！");
+                    } else {
+                        alert("红外热光打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_camera_switch_cold() {
+            const url = "http://127.0.0.1:3300/PLD80-order/camera-switch";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "red-infrared-cold"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("红外冷光打开成功！");
+                    } else {
+                        alert("红外冷光打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_target_type_adaptive() {
+            const url = "http://127.0.0.1:3300/PLD80-order/target-type";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "adaptive"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("目标类型打开成功！");
+                    } else {
+                        alert("目标类型打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_target_type_person() {
+            const url = "http://127.0.0.1:3300/PLD80-order/target-type";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "person"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("目标类型打开成功！");
+                    } else {
+                        alert("目标类型打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_target_type_vehicle() {
+            const url = "http://127.0.0.1:3300/PLD80-order/target-type";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "vehicle"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("目标类型打开成功！");
+                    } else {
+                        alert("目标类型打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_target_type_building() {
+            const url = "http://127.0.0.1:3300/PLD80-order/target-type";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "building"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("目标类型打开成功！");
+                    } else {
+                        alert("目标类型打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_target_lock() {
+            const url = "http://127.0.0.1:3300/PLD80-order/target-lock";
+            const params = new URLSearchParams({
+                uid: 1,
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("目标锁定打开成功！");
+                    } else {
+                        alert("目标锁定打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_center() {
+            const url = "http://127.0.0.1:3300/PLD80-order/center";
+            const params = new URLSearchParams({
+                uid: 1,
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("归中成功！");
+                    } else {
+                        alert("归中失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_target_check_on() {
+            const url = "http://127.0.0.1:3300/PLD80-order/target-check";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "on"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("目标检测打开成功！");
+                    } else {
+                        alert("目标检测打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_target_check_off() {
+            const url = "http://127.0.0.1:3300/PLD80-order/target-check";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "off"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("目标检测关闭成功！");
+                    } else {
+                        alert("目标检测关闭失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_bullet_storage_on() {
+            const url = "http://127.0.0.1:3300/PLD80-order/bullet-storage";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "on"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("弹上存储打开成功！");
+                    } else {
+                        alert("弹上存储打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_bullet_storage_off() {
+            const url = "http://127.0.0.1:3300/PLD80-order/bullet-storage";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "off"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("弹上存储关闭成功！");
+                    } else {
+                        alert("弹上存储关闭失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_night_attack_on() {
+            const url = "http://127.0.0.1:3300/PLD80-order/night-attack";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "on"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("夜间攻击打开成功！");
+                    } else {
+                        alert("夜间攻击打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_night_attack_off() {
+            const url = "http://127.0.0.1:3300/PLD80-order/night-attack";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "off"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("夜间攻击打开成功！");
+                    } else {
+                        alert("夜间攻击打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_bullet_storage_off() {
+            const url = "http://127.0.0.1:3300/PLD80-order/night-attack";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "off"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("夜间攻击关闭成功！");
+                    } else {
+                        alert("夜间攻击关闭失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_motor_control_on() {
+            const url = "http://127.0.0.1:3300/PLD80-order/motor-control";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "on"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("电机打开成功！");
+                    } else {
+                        alert("电机打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_motor_control_off() {
+            const url = "http://127.0.0.1:3300/PLD80-order/motor-control";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "off"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("电机关闭成功！");
+                    } else {
+                        alert("电机关闭失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_fllow_on() {
+            const url = "http://127.0.0.1:3300/PLD80-order/fllow";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "on"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("跟随打开成功！");
+                    } else {
+                        alert("跟随打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_fllow_off() {
+            const url = "http://127.0.0.1:3300/PLD80-order/fllow";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "off"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("跟随关闭成功！");
+                    } else {
+                        alert("跟随关闭失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_door_lock_on() {
+            const url = "http://127.0.0.1:3300/PLD80-order/door-lock";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "on"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("电锁打开成功！");
+                    } else {
+                        alert("电锁打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_door_lock_off() {
+            const url = "http://127.0.0.1:3300/PLD80-order/door-lock";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "off"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("电锁关闭成功！");
+                    } else {
+                        alert("电锁关闭失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_sweep_mode_on() {
+            const url = "http://127.0.0.1:3300/PLD80-order/sweep-mode";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "on"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("周扫模式打开成功！");
+                    } else {
+                        alert("周扫模式打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_sweep_mode_off() {
+            const url = "http://127.0.0.1:3300/PLD80-order/sweep-mode";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "off"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("周扫模式关闭成功！");
+                    } else {
+                        alert("周扫模式关闭失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_gyro_suppression() {
+            // 获取输入框的值
+            const gyroInput = document.getElementById('gyroInput');
+            const gyroValue = gyroInput.value.trim();
+            // 验证输入
+            if (!gyroValue) {
+                alert("请输入缩放比例值！");
+                return;
+            }
+            const numericValue = parseInt(gyroValue);
+            const url = "http://127.0.0.1:3300/PLD80-order/gyro-suppression";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: numericValue.toString()
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("抑制陀螺仪漂移输入成功！");
+                    } else {
+                        alert("抑制陀螺仪漂移输入失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PLD80_frame_angle() {
+            const pitch_frame_angle_input = document.getElementById("pitch_frame_angle_input")
+            const azimuth_frame_angle_input = document.getElementById("azimuth_frame_angle")
+            const value1 = pitch_frame_angle_input.value.trim()
+            const value2 = azimuth_frame_angle_input.value.trim()
+            if (!value1 || !value2) {
+                alert("请输入有效值")
+                return
+            }
+            const numervalue1 = parseInt(value1)
+            const numervalue2 = parseInt(value2)
+            const url = "http://127.0.0.1:3300/PLD80-order/frame-angle";
+            const params = new URLSearchParams({
+                uid: 1,
+                pitch_frame_angle: numervalue1.toString(),
+                azimuth_frame_angle: numervalue2.toString()
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("指定框架角度成功！");
+                    } else {
+                        alert("指定框架角度失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function TBS_OSD_on() {
+            const url = "http://127.0.0.1:3300/TBS-order/OSD";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "on"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("OSD打开成功！");
+                    } else {
+                        alert("OSD打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function TBS_OSD_off() {
+            const url = "http://127.0.0.1:3300/TBS-order/OSD";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "off"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("OSD关闭成功！");
+                    } else {
+                        alert("OSD关闭失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function TBS_pip_light_visible() {
+            const url = "http://127.0.0.1:3300/TBS-order/pip-light";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "visible"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("画中画可见光打开成功！");
+                    } else {
+                        alert("画中画可见光打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function TBS_pip_light_infrared() {
+            const url = "http://127.0.0.1:3300/TBS-order/pip-light";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "infrared"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("画中画红外光打开成功！");
+                    } else {
+                        alert("画中画红外光打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function TBS_zoom() {
+            // 获取输入框的值
+            const TzoomInput = document.getElementById('TBSzoomValue');
+            const TzoomValue = TzoomInput.value.trim();
+            // 验证输入
+            if (!TzoomValue) {
+                alert("请输入缩放比例值！");
+                return;
+            }
+            const numericValue = parseInt(TzoomValue);
+            const url = "http://127.0.0.1:3300/TBS-order/zoom";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: numericValue.toString()
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("变焦指令成功！");
+                    } else {
+                        alert("变焦指令失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function TBS_target_lock() {
+            const url = "http://127.0.0.1:3300/TBS-order/target-lock";
+            const params = new URLSearchParams({
+                uid: 1,
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("目标锁定成功！");
+                    } else {
+                        alert("目标锁定失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function TBS_laser_distance_on() {
+            const url = "http://127.0.0.1:3300/TBS-order/laser-distance";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "on"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("激光测距打开成功！");
+                    } else {
+                        alert("激光测距打开失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function TBS_laser_distance_off() {
+            const url = "http://127.0.0.1:3300/TBS-order/laser-distance";
+            const params = new URLSearchParams({
+                uid: 1,
+                order: "off"
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("激光测距关闭成功！");
+                    } else {
+                        alert("激光测距关闭失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function PIP_geographic_tracking() {
+            const longitude_input = document.getElementById("longitude_input")
+            const latitude_input = document.getElementById("latitude_input")
+            const height_input = document.getElementById("height_input")
+            const value1 = longitude_input.value.trim()
+            const value2 = latitude_input.value.trim()
+            const value3 = height_input.value.trim()
+            if (!value1 || !value2 || !value3) {
+                alert("请输入有效值")
+                return
+            }
+            const numervalue1 = parseInt(value1)
+            const numervalue2 = parseInt(value2)
+            const numervalue3 = parseInt(value3)
+            const url = "http://127.0.0.1:3300/pip-order/geographic-tracking";
+            const params = new URLSearchParams({
+                uid: 1,
+                longitude: numervalue1.toString(),
+                latitude: numervalue2.toString(),
+                height: numervalue3.toString()
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("地理追踪成功！");
+                    } else {
+                        alert("地理追踪失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+        function control() {
+            const x_speed_input = document.getElementById("x_speed_input")
+            const y_speed_input = document.getElementById("y_speed_input")
+            const value1 = x_speed_input.value.trim()
+            const value2 = y_speed_input.value.trim()
+            if (!value1 || !value2) {
+                alert("请输入有效值")
+                return
+            }
+            const numervalue1 = parseInt(value1)
+            const numervalue2 = parseInt(value2)
+            const url = "http://127.0.0.1:3300/control/move";
+            const params = new URLSearchParams({
+                uid: 1,
+                x_speed: numervalue1.toString(),
+                y_speed: numervalue2.toString(),
+            });
+            fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("POST 响应:", data);
+                    if (data.status === "Instruction sent successfully!") {
+                        alert("控制吊舱移动成功！");
+                    } else {
+                        alert("控制吊舱移动失败！");
+                    }
+                })
+                .catch(error => {
+                    console.error("请求失败:", error);
+                    alert("请求失败，请检查服务器状态！");
+                });
+        }
+
+    </script>
+</body>
+
+</html>
